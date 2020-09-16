@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap-4.5.2-dist/css/bootstrap.min.css">
+    <link href="styles/cssandjs/main.css" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar navbar-expand-md">
+    <a class="navbar-brand" href="#?">Logo</a>
+    <button class="navbar-toggler navbar-dark" type="button" data-toggle="collapse" data-target="#main-navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="main-navigation">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">Create new entry</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/list?categoryName=Coming Up">Upcoming and Passed Due</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/list">Dashboard List</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container features">
+    <div class="row">
+        <div  th:each="category: ${listOfCategories}" class="col-lg-4 col-md-4 col-sm-12 mt-3">
+            <form th:action="@{/}" method="get">
+                <input type="hidden" name="categoryName" th:value="${category.getCategory()}">
+            <button class="btn btn-lg bigger middleCenter" th:text="${category.getCategory()}" th:classappend="${(#strings.equals(category.getExpirationState() ,'Expired') ? 'overdue' : '') + (#strings.equals(category.getExpirationState() ,'Warning') ? 'warning' : '') + (#strings.equals(category.getExpirationState() ,'Valid') ? 'valid' : '')}"></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--
+<div class="card">
+                <div class="card-block">
+                    <div class="card-title" th:text="${Category.getCategory()}"></div>
+                </div>
+            </div>
+-->
+<script src="jquery-3.5.1.min.js"></script>
+<script src="bootstrap-4.5.2-dist/js/bootstrap.min.js"></script>
+</body>
+</html>

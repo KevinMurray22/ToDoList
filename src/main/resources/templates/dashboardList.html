@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard List</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="bootstrap-4.5.2-dist/css/bootstrap.min.css">
+    <link href="styles/cssandjs/main.css" rel="stylesheet" />
+    <link href="styles/cssandjs/dashboardlist.css" rel="stylesheet" />
+</head>
+<body>
+<nav class="navbar navbar-expand-md">
+    <a class="navbar-brand" href="#">Logo</a>
+    <button class="navbar-toggler navbar-dark" type="button" data-toggle="collapse" data-target="#main-navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="main-navigation">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/create">Create new entry</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/list?categoryName=Coming Up">Upcoming and Passed Due</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/list">Dashboard List</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<h1 th:inline="text">[[${category.getCategory()}]] List</h1>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Due by</th>
+        <th>Expiration State</th>
+    </tr>
+    <tr th:each="item : ${listOfItems}" th:classappend="${(#strings.equals(item.expirationState ,'Expired') ? 'overdue' : '') + (#strings.equals(item.expirationState ,'Warning') ? 'warning' : '') + (#strings.equals(item.expirationState ,'Valid') ? 'valid' : '')}">
+        <td th:text="${item.name}"></td>
+        <td th:text="${item.description}"</td>
+        <td th:text="${item.getTime()}"</td>
+        <td th:text="${item.expirationState}"</td>
+        <td>
+            <form th:action="@{/list}" method="post">
+                <input type="hidden" name="id" th:value="${item.getId()}">
+                <input type="hidden" name="categoryName" th:value="${category.getCategory()}">
+                <input type="hidden" name="flag" value="1">
+            <label class="form-check-label" for="primaryBtn"></label>
+            <input type="submit"  id ="primaryBtn" class="btn btn-primary" value="Submit">
+            </form>
+            <form th:action="@{/list}" method="post">
+                <input type="hidden" name="id" th:value="${item.getId()}">
+                <input type="hidden" name="categoryName" th:value="${category.getCategory()}">
+                <input type="hidden" name="flag" value="0">
+                <label class="form-check-label" for="primaryBtn"></label>
+                <input type="submit"  id ="deleteBtn" class="btn btn-primary" value="Delete">
+            </form>
+        </td>
+    </tr>
+</table>
+
+
+</body>
+</html>

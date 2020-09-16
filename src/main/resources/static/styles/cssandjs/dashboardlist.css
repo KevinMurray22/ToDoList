@@ -1,0 +1,17 @@
+table, th, td {
+  border: 1px solid black;
+}
+
+tr.overdue {
+  background-color: tomato;
+  color: white;
+}
+tr.warning {
+  background-color: yellow;
+  color: black;
+}
+
+tr.valid {
+  background-color: green;
+  color: black;
+}

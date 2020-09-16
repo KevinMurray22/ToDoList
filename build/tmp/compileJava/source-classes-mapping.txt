@@ -1,0 +1,14 @@
+com/example/servingwebcontent/ServingWebContentApplication.java
+ com.example.servingwebcontent.ServingWebContentApplication
+com/example/servingwebcontent/entities/Category.java
+ com.example.servingwebcontent.entities.Category
+com/example/servingwebcontent/entities/Item.java
+ com.example.servingwebcontent.entities.Item
+com/example/servingwebcontent/CategoryRepository.java
+ com.example.servingwebcontent.CategoryRepository
+com/example/servingwebcontent/Application.java
+ com.example.servingwebcontent.Application
+com/example/servingwebcontent/ItemRepository.java
+ com.example.servingwebcontent.ItemRepository
+com/example/servingwebcontent/DashboardController.java
+ com.example.servingwebcontent.DashboardController
