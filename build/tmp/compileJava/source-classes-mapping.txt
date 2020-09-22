@@ -6,8 +6,6 @@ com/example/servingwebcontent/MyUserDetailsService.java
  com.example.servingwebcontent.MyUserDetailsService
 com/example/servingwebcontent/MyUserPrincipal.java
  com.example.servingwebcontent.MyUserPrincipal
-com/example/servingwebcontent/Application.java
- com.example.servingwebcontent.Application
 com/example/servingwebcontent/ServingWebContentApplication.java
  com.example.servingwebcontent.ServingWebContentApplication
 com/example/servingwebcontent/UserRepository.java
