@@ -26,25 +26,30 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        /*
         http
                 .authorizeRequests()
                     .antMatchers("/register").permitAll()
                     .anyRequest().authenticated()
                     .and()
                     .formLogin();
+        */
+        http.authorizeRequests().antMatchers("/").permitAll();
     }
 
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-       /* UserDetails user =
+       UserDetails user =
                 User.withDefaultPasswordEncoder()
                         .username("user")
                         .password("password")
                         .roles("USER")
                         .build();
-*/
-        return new InMemoryUserDetailsManager(userDetailsService.loadUserByUsername("Kevin"));
+
+
+//userDetailsService.loadUserByUsername("Kevin")
+        return new InMemoryUserDetailsManager(user);
     }
 }
 
