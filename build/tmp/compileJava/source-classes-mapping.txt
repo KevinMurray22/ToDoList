@@ -1,14 +1,28 @@
-com/example/servingwebcontent/ServingWebContentApplication.java
- com.example.servingwebcontent.ServingWebContentApplication
 com/example/servingwebcontent/entities/Category.java
  com.example.servingwebcontent.entities.Category
-com/example/servingwebcontent/entities/Item.java
- com.example.servingwebcontent.entities.Item
-com/example/servingwebcontent/CategoryRepository.java
- com.example.servingwebcontent.CategoryRepository
+com/example/servingwebcontent/UserDTO.java
+ com.example.servingwebcontent.UserDTO
+com/example/servingwebcontent/MyUserDetailsService.java
+ com.example.servingwebcontent.MyUserDetailsService
+com/example/servingwebcontent/MyUserPrincipal.java
+ com.example.servingwebcontent.MyUserPrincipal
 com/example/servingwebcontent/Application.java
  com.example.servingwebcontent.Application
-com/example/servingwebcontent/ItemRepository.java
- com.example.servingwebcontent.ItemRepository
+com/example/servingwebcontent/ServingWebContentApplication.java
+ com.example.servingwebcontent.ServingWebContentApplication
+com/example/servingwebcontent/UserRepository.java
+ com.example.servingwebcontent.UserRepository
+com/example/servingwebcontent/User.java
+ com.example.servingwebcontent.User
+com/example/servingwebcontent/entities/Item.java
+ com.example.servingwebcontent.entities.Item
 com/example/servingwebcontent/DashboardController.java
  com.example.servingwebcontent.DashboardController
+com/example/servingwebcontent/UserService.java
+ com.example.servingwebcontent.UserService
+com/example/servingwebcontent/ItemRepository.java
+ com.example.servingwebcontent.ItemRepository
+com/example/servingwebcontent/CategoryRepository.java
+ com.example.servingwebcontent.CategoryRepository
+com/example/servingwebcontent/WebSecurityConfig.java
+ com.example.servingwebcontent.WebSecurityConfig

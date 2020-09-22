@@ -1,7 +1,6 @@
 package com.example.servingwebcontent;
 
 import com.example.servingwebcontent.entities.Category;
-import com.example.servingwebcontent.entities.Item;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

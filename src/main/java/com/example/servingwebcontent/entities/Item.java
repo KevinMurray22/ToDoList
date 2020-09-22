@@ -1,9 +1,6 @@
 package com.example.servingwebcontent.entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
@@ -18,6 +15,8 @@ public class Item {
     private String expirationState;
     private int daysToWarn;
     private String repeatState;
+    @Column(name="user")
+    private String user;
 
 
     public String getName() {
@@ -85,6 +84,14 @@ public class Item {
         Calendar calendarItem = Calendar.getInstance();
         calendarItem.setTimeInMillis(expiration);
         return calendarItem.getTime().toString();
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 
     public String toString(){

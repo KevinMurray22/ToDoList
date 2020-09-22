@@ -3,10 +3,13 @@ package com.example.servingwebcontent;
 import com.example.servingwebcontent.entities.Category;
 import com.example.servingwebcontent.entities.Item;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -20,8 +23,12 @@ public class DashboardController {
     private ItemRepository itemRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private UserService userService;
    @GetMapping("/")
-    public String dashboardIndexForm(RedirectAttributes redirectAttributes, Model model, @RequestParam(defaultValue = "") String categoryName) {
+    public String dashboardIndexForm(@CurrentSecurityContext(expression="authentication.name")
+    String username, RedirectAttributes redirectAttributes, Model model, @RequestParam(defaultValue = "") String categoryName) {
+
         updateExpOfItems();
         if(categoryName.equals("")) {
 
@@ -38,17 +45,18 @@ public class DashboardController {
                 return "redirect:/list";
             }
         }
-
+        System.out.println("Username :" + username);
+        model.addAttribute("currentUser", username);
         return "index.html";
     }
 
     @GetMapping("/create")
-    public String createItemForm(Model model) {
+    public String createItemForm(@CurrentSecurityContext(expression="authentication.name") String username, Model model) {
         Item item = new Item();
         item.setRepeatState("NoRepeat");
         model.addAttribute("newItem", item);                                                            //Defaults to a non repeating state.
         model.addAttribute("categoryList", categoryRepository.findByHasChild(false));
-
+        model.addAttribute("currentUser", username);
         return "createItem";
     }
 
@@ -67,7 +75,9 @@ public class DashboardController {
     }
 
     @GetMapping("/list")
-    public String categoryIndexForm(RedirectAttributes redirectAttributes, Model model, @RequestParam(defaultValue = "") String categoryName) {
+    public String categoryIndexForm(@CurrentSecurityContext(expression="authentication.name") String username, RedirectAttributes redirectAttributes, Model model,
+                                    @RequestParam(defaultValue = "") String categoryName) {
+
        updateExpOfItems();
        if(categoryName.equals("Coming Up")){
            model.addAttribute("listOfItems", itemRepository.findByExpirationStateNot("Valid"));
@@ -81,6 +91,7 @@ public class DashboardController {
        Category category = new Category();
        category.setCategory(categoryName);
        model.addAttribute("category", category);
+        model.addAttribute("currentUser", username);
         return "dashboardList";
     }
 
@@ -117,6 +128,20 @@ public class DashboardController {
         redirectAttributes.addAttribute("categoryName", categoryName);
         return "redirect:list";
     }
+    @GetMapping("/register")
+    public String registrationForm(Model model){
+       UserDTO user = new UserDTO();
+       model.addAttribute("user", user);
+       return "registration.html";
+    }
+
+    @PostMapping("/register")
+    public String registerUserAccount(@ModelAttribute("user") UserDTO userDTO, Model model){
+       System.out.println("Username: " + userDTO.getFirstName());
+       userService.registerNewUserAccount(userDTO);
+       return "redirect:/";
+    }
+
 
     public void updateExpOfItems(){
        Calendar calendar = Calendar.getInstance();
@@ -182,5 +207,6 @@ public class DashboardController {
             updateParentTree(parentCategory);
         }
     }
+
 
 }
