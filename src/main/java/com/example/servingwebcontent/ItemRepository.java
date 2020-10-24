@@ -11,4 +11,10 @@ public interface ItemRepository extends CrudRepository<Item, Long> {
     List<Item> findByCategory(String category);
     boolean existsByCategory(String category);
     List<Item> findByExpirationStateNot(String expirationState);
+
+    List<Item> findByCategoryAndUserName(String category, String userName);
+    boolean existsByCategoryAndUserName(String category, String userName);
+    List<Item> findByExpirationStateNotAndUserName(String expirationState, String userName);
+    List<Item> findByUserName(String userName);
+    boolean existsByCategoryAndUserNameAndExpirationState(String category, String userName, String expirationState);
 }

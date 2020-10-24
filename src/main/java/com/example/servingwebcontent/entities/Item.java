@@ -15,8 +15,8 @@ public class Item {
     private String expirationState;
     private int daysToWarn;
     private String repeatState;
-    @Column(name="user")
-    private String user;
+    @Column(name="user_name")
+    private String userName;
 
 
     public String getName() {
@@ -86,12 +86,12 @@ public class Item {
         return calendarItem.getTime().toString();
     }
 
-    public String getUser() {
-        return user;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String toString(){

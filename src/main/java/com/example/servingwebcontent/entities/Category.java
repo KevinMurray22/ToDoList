@@ -1,11 +1,13 @@
 package com.example.servingwebcontent.entities;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "categories")
 public class Category {
-    @Id
+    @Id @GeneratedValue(strategy= GenerationType.AUTO) private Long id;
     private String category;
     @Column(name = "parent")
     private String parentCategory;
@@ -13,6 +15,12 @@ public class Category {
     private String expirationState;
     @Column(name = "has_child")
     private boolean hasChild;
+    @Column(name = "user_name")
+    private String userName;
+
+    public Long getId() {
+        return id;
+    }
 
     public String getCategory() {
         return category;
@@ -44,5 +52,13 @@ public class Category {
 
     public boolean isHasChild() {
         return hasChild;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

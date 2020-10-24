@@ -14,13 +14,13 @@ com/example/servingwebcontent/User.java
  com.example.servingwebcontent.User
 com/example/servingwebcontent/entities/Item.java
  com.example.servingwebcontent.entities.Item
-com/example/servingwebcontent/DashboardController.java
- com.example.servingwebcontent.DashboardController
-com/example/servingwebcontent/UserService.java
- com.example.servingwebcontent.UserService
-com/example/servingwebcontent/ItemRepository.java
- com.example.servingwebcontent.ItemRepository
-com/example/servingwebcontent/CategoryRepository.java
- com.example.servingwebcontent.CategoryRepository
 com/example/servingwebcontent/WebSecurityConfig.java
  com.example.servingwebcontent.WebSecurityConfig
+com/example/servingwebcontent/UserService.java
+ com.example.servingwebcontent.UserService
+com/example/servingwebcontent/CategoryRepository.java
+ com.example.servingwebcontent.CategoryRepository
+com/example/servingwebcontent/ItemRepository.java
+ com.example.servingwebcontent.ItemRepository
+com/example/servingwebcontent/DashboardController.java
+ com.example.servingwebcontent.DashboardController

@@ -9,11 +9,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 
 @Controller
@@ -29,15 +29,15 @@ public class DashboardController {
     public String dashboardIndexForm(@CurrentSecurityContext(expression="authentication.name")
     String username, RedirectAttributes redirectAttributes, Model model, @RequestParam(defaultValue = "") String categoryName) {
 
-        updateExpOfItems();
+        updateExpOfItems(username);
         if(categoryName.equals("")) {
 
-            model.addAttribute("listOfCategories", categoryRepository.findByParentCategory("Root"));
+            model.addAttribute("listOfCategories", categoryRepository.findByParentCategoryAndUserName("Root", username));
        }
         else {
-            if(categoryRepository.findByCategory(categoryName).isHasChild()) {
+            if(categoryRepository.findByCategoryAndUserName(categoryName, username).isHasChild()) {
 
-                model.addAttribute("listOfCategories", categoryRepository.findByParentCategory(categoryName));
+                model.addAttribute("listOfCategories", categoryRepository.findByParentCategoryAndUserName(categoryName, username));
             }
             else {
 
@@ -50,27 +50,61 @@ public class DashboardController {
         return "index.html";
     }
 
-    @GetMapping("/create")
+    @GetMapping("/createItem")
     public String createItemForm(@CurrentSecurityContext(expression="authentication.name") String username, Model model) {
         Item item = new Item();
         item.setRepeatState("NoRepeat");
+        item.setUserName(username);
         model.addAttribute("newItem", item);                                                            //Defaults to a non repeating state.
-        model.addAttribute("categoryList", categoryRepository.findByHasChild(false));
+        model.addAttribute("categoryList", categoryRepository.findByHasChildAndUserName(false, username));
         model.addAttribute("currentUser", username);
         return "createItem";
     }
 
 
-    @PostMapping("/create")
-    public String createItemSubmit(@ModelAttribute Item newItem, @RequestParam String dateString, Model model) throws ParseException {
+    @PostMapping("/createItem")
+    public String createItemSubmit(@CurrentSecurityContext(expression="authentication.name") String username, @ModelAttribute Item newItem, @RequestParam String dateString, Model model) throws ParseException {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Date date = sdf.parse(dateString);
         cal.setTime(date);
         newItem.setExpiration(cal.getTimeInMillis());
         newItem.setExpirationState("Valid");
+        newItem.setUserName(username);
         itemRepository.save(newItem);
 
+        return "redirect:/";
+    }
+
+    @GetMapping("/createCategory")
+    public String createCategoryForm(@CurrentSecurityContext(expression="authentication.name") String username, Model model) {
+        Category newCategory = new Category();
+        model.addAttribute("newCategory", newCategory);
+        model.addAttribute("categoryList", categoryRepository.findByUserName(username));
+        model.addAttribute("currentUser", username);
+        return "createCategory";
+    }
+
+    @PostMapping("/createCategory")
+    public String createCategorySubmit(@CurrentSecurityContext(expression="authentication.name") String username, Model model, @ModelAttribute("newCategory") Category newCategory) {
+        Category parentCategory;
+       if(!newCategory.getParentCategory().equals("Root")){
+
+           parentCategory = categoryRepository.findByCategoryAndUserName(newCategory.getParentCategory(), username);
+           if(!parentCategory.isHasChild()){
+               List<Item> items = itemRepository.findByCategoryAndUserName(parentCategory.getCategory(), username);
+               for (Item item:items){
+                   item.setCategory(newCategory.getCategory());
+                   itemRepository.save(item);
+               }
+               parentCategory.setHasChild(true);
+               categoryRepository.save(parentCategory);
+           }
+       }
+        newCategory.setUserName(username);
+        newCategory.setExpirationState("Valid");
+        newCategory.setHasChild(false);
+        categoryRepository.save(newCategory);
         return "redirect:/";
     }
 
@@ -78,15 +112,15 @@ public class DashboardController {
     public String categoryIndexForm(@CurrentSecurityContext(expression="authentication.name") String username, RedirectAttributes redirectAttributes, Model model,
                                     @RequestParam(defaultValue = "") String categoryName) {
 
-       updateExpOfItems();
+       updateExpOfItems(username);
        if(categoryName.equals("Coming Up")){
-           model.addAttribute("listOfItems", itemRepository.findByExpirationStateNot("Valid"));
+           model.addAttribute("listOfItems", itemRepository.findByExpirationStateNotAndUserName("Valid", username));
        }
        else
        if(categoryName.equals(""))
-           model.addAttribute("listOfItems", itemRepository.findAll());
+           model.addAttribute("listOfItems", itemRepository.findByUserName(username));
        else
-        model.addAttribute("listOfItems", itemRepository.findByCategory(categoryName));
+        model.addAttribute("listOfItems", itemRepository.findByCategoryAndUserName(categoryName, username));
 
        Category category = new Category();
        category.setCategory(categoryName);
@@ -96,7 +130,7 @@ public class DashboardController {
     }
 
     @PostMapping("/list")
-    public String listIndexSubmit(@RequestParam int flag, @RequestParam(defaultValue = "") String categoryName , RedirectAttributes redirectAttributes,  @RequestParam Long id, Model model) {
+    public String listIndexSubmit(@CurrentSecurityContext(expression="authentication.name") String username, @RequestParam int flag, @RequestParam(defaultValue = "") String categoryName , RedirectAttributes redirectAttributes,  @RequestParam Long id, Model model) {
 
         if(flag==0){                                                      //This executes if the user asks for deletion of the entry.
             itemRepository.deleteById(id);
@@ -124,7 +158,7 @@ public class DashboardController {
                 itemRepository.save(item);
             }
         }
-        model.addAttribute("listOfItems", itemRepository.findAll());
+        model.addAttribute("listOfItems", itemRepository.findByUserName(username));
         redirectAttributes.addAttribute("categoryName", categoryName);
         return "redirect:list";
     }
@@ -143,68 +177,73 @@ public class DashboardController {
     }
 
 
-    public void updateExpOfItems(){
-       Calendar calendar = Calendar.getInstance();
+    public void updateExpOfItems(String username){
+       if(categoryRepository.existsByUserName(username)) {
 
-        setApplicableCategoriesToValid();
+           Calendar calendar = Calendar.getInstance();
 
-        for (Item item: itemRepository.findAll()){
-            Calendar calendarItem = Calendar.getInstance();
-            calendarItem.setTimeInMillis(item.getExpiration());
-            if(calendarItem.before(calendar)) {
-                setItemAndCategoryTo(item, "Expired");
-            }
-             else{
-                 int daysToWarn = item.getDaysToWarn();
-                 calendar.add(Calendar.DATE,daysToWarn);
-                 if(calendar.compareTo(calendarItem) > 0){
-                     setItemAndCategoryTo(item, "Warning");
-                 }
-                 else
-                     setItemAndCategoryTo(item, "Valid");
-                calendar.add(Calendar.DATE,-daysToWarn);                    //Sets the calendar back to normal. We are in a loop, if this doesn't happen the changes build up and the calendar will not be accurate.
-             }
+           setApplicableCategoriesToValid(username);
 
-            updateCategories();
-        }
+           for (Item item : itemRepository.findByUserName(username)) {
+               Calendar calendarItem = Calendar.getInstance();
+               calendarItem.setTimeInMillis(item.getExpiration());
+
+
+               if (calendarItem.before(calendar)) {
+                   setItemAndCategoryTo(item, "Expired", username);
+               } else {
+                   int daysToWarn = item.getDaysToWarn();
+                   calendar.add(Calendar.DATE, daysToWarn);
+                   if (calendar.compareTo(calendarItem) > 0 /*&& !expired*/) {
+                       setItemAndCategoryTo(item, "Warning", username);
+                   }
+                   calendar.add(Calendar.DATE, -daysToWarn);                    //Sets the calendar back to normal. We are in a loop, if this doesn't happen the changes build up and the calendar will not be accurate.
+               }
+
+               updateCategories(username);
+           }
+       }
     }
 
-    public void setItemAndCategoryTo(Item item, String state){
+    public void setItemAndCategoryTo(Item item, String state, String username){
 
        item.setExpirationState(state);
-       Category category = categoryRepository.findByCategory(item.getCategory());
-       category.setExpirationState(state);
-
-       categoryRepository.save(category);
+       Category category = categoryRepository.findByCategoryAndUserName(item.getCategory(), username);
+       if(!category.getExpirationState().equals("Expired")) {
+           category.setExpirationState(state);
+           categoryRepository.save(category);
+       }
        itemRepository.save(item);
     }
 
-    public void setApplicableCategoriesToValid(){
+    public void setApplicableCategoriesToValid(String username){
 
-        for (Category category :categoryRepository.findAll()
+        for (Category category :categoryRepository.findByUserName(username)
         ) {
-            if(!itemRepository.existsByCategory(category.getCategory())){
+            if(!itemRepository.existsByCategoryAndUserNameAndExpirationState(category.getCategory(), username, "Expired") &&
+                    !itemRepository.existsByCategoryAndUserNameAndExpirationState(category.getCategory(), username, "Warning")){
+
                 category.setExpirationState("Valid");
             }
         }
     }
 
-    public void updateCategories(){
-        for (Category category: categoryRepository.findByHasChild(false)) {
+    public void updateCategories(String username){
+        for (Category category: categoryRepository.findByHasChildAndUserName(false, username)) {
             if(!category.getExpirationState().equals("Valid")){
-                updateParentTree(category);
+                updateParentTree(category, username);
             }
 
         }
     }
 
-    public void updateParentTree(Category category){
+    public void updateParentTree(Category category, String username){
         if(!category.getParentCategory().equals("Root")){
-            Category parentCategory = categoryRepository.findByCategory(category.getParentCategory());
+            Category parentCategory = categoryRepository.findByCategoryAndUserName(category.getParentCategory(), username);
             if(!parentCategory.getExpirationState().equals("Expired"))
                 parentCategory.setExpirationState(category.getExpirationState());
             categoryRepository.save(parentCategory);
-            updateParentTree(parentCategory);
+            updateParentTree(parentCategory, username);
         }
     }
 
